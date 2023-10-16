@@ -1,0 +1,1071 @@
+%START ENGLISH
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% vim: set textwidth=120:
+
+% Example CV based on the 1.5-column-cv template. Main features:
+% * uses the Roboto font family and IcoMoon icon set;
+% * doesn't use colours, different font weights are used instead for styling;
+% * because the CV fits on one page, header and footer is empty, since there isn't much useful info to put there;
+% * includes a photo.
+\documentclass[a4paper,10pt]{article}
+
+
+% package imports
+% ---------------
+
+\usepackage[british]{babel} % for correct language and hyphenation and stuff
+\usepackage{calc}           % for easier length calculations (infix notation)
+\usepackage{enumitem}       % for configuring list environments
+\usepackage{fancyhdr}       % for setting header and footer
+\usepackage{fontspec}       % for fonts
+\usepackage{geometry}       % for setting margins (\newgeometry)
+\usepackage{graphicx}       % for pictures
+\usepackage{microtype}      % for microtypography stuff
+\usepackage{xcolor}         % for colours
+
+
+% margin and column widths
+% ------------------------
+
+% margins
+\newgeometry{left=15mm,right=15mm,top=15mm,bottom=15mm}
+
+% width of the gap between left and right column
+\newlength{\cvcolumngapwidth}
+\setlength{\cvcolumngapwidth}{3.5mm}
+
+% left column width
+\newlength{\cvleftcolumnwidth}
+\setlength{\cvleftcolumnwidth}{44.5mm}
+
+% right column width
+\newlength{\cvrightcolumnwidth}
+\setlength{\cvrightcolumnwidth}{\textwidth-\cvleftcolumnwidth-\cvcolumngapwidth}
+
+% set paragraph indentation to 0, because it screws up the whole layout otherwise
+\setlength{\parindent}{0mm}
+
+
+% style definitions
+% -----------------
+% style categories explanation:
+% * \cvnameXXX is used for the name;
+% * \cvsectionXXX is used for section names (left column, accompanied by a horizontal rule);
+% * \cvtitleXXX is used for job/education titles (right column);
+% * \cvdurationXXX is used for job/education durations (left column);
+% * \cvheadingXXX is used for headings (left column);
+% * \cvmainXXX (and \setmainfont) is used for main text;
+% * \cvruleXXX is used for the horizontal rules denoting sections.
+
+% font families
+\defaultfontfeatures{Ligatures=TeX} % reportedly a good idea, see https://tex.stackexchange.com/a/37251
+
+\newfontfamily{\cvnamefont}{Roboto Medium}
+\newfontfamily{\cvsectionfont}{Roboto Medium}
+\newfontfamily{\cvtitlefont}{Roboto Regular}
+\newfontfamily{\cvdurationfont}{Roboto Light Italic}
+\newfontfamily{\cvheadingfont}{Roboto Regular}
+\setmainfont{Roboto Light}
+
+% colours
+\definecolor{cvnamecolor}{HTML}{009FD6}
+\definecolor{cvsectioncolor}{HTML}{009FD6}
+\definecolor{cvtitlecolor}{HTML}{009FD6}
+\definecolor{cvdurationcolor}{HTML}{009FD6}
+\definecolor{cvheadingcolor}{HTML}{009FD6}
+\definecolor{cvmaincolor}{HTML}{009FD6}
+\definecolor{cvrulecolor}{HTML}{009FD6}
+
+\color{cvmaincolor}
+
+% styles
+\newcommand{\cvnamestyle}[1]{{\Large\cvnamefont\textcolor{cvnamecolor}{#1}}}
+\newcommand{\cvsectionstyle}[1]{{\normalsize\cvsectionfont\textcolor{cvsectioncolor}{#1}}}
+\newcommand{\cvtitlestyle}[1]{{\large\cvtitlefont\textcolor{cvtitlecolor}{#1}}}
+\newcommand{\cvdurationstyle}[1]{{\small\cvdurationfont\textcolor{cvdurationcolor}{#1}}}
+\newcommand{\cvheadingstyle}[1]{{\normalsize\cvheadingfont\textcolor{cvheadingcolor}{#1}}}
+
+
+% inter-item spacing
+% ------------------
+
+% vertical space after personal info and standard CV items
+\newlength{\cvafteritemskipamount}
+\setlength{\cvafteritemskipamount}{5mm plus 1.25mm minus 1.25mm}
+
+% vertical space after sections
+\newlength{\cvaftersectionskipamount}
+\setlength{\cvaftersectionskipamount}{2mm plus 0.5mm minus 0.5mm}
+
+% extra vertical space to be used when a section starts with an item with a heading (e.g. in the skills section),
+% so that the heading does not follow the section name too closely
+\newlength{\cvbetweensectionandheadingextraskipamount}
+\setlength{\cvbetweensectionandheadingextraskipamount}{1mm plus 0.25mm minus 0.25mm}
+
+
+% intra-item spacing
+% ------------------
+
+% vertical space after name
+\newlength{\cvafternameskipamount}
+\setlength{\cvafternameskipamount}{3mm plus 0.75mm minus 0.75mm}
+
+% vertical space after personal info lines
+\newlength{\cvafterpersonalinfolineskipamount}
+\setlength{\cvafterpersonalinfolineskipamount}{2mm plus 0.5mm minus 0.5mm}
+
+% vertical space after titles
+\newlength{\cvaftertitleskipamount}
+\setlength{\cvaftertitleskipamount}{1mm plus 0.25mm minus 0.25mm}
+
+% value to be used as parskip in right column of CV items and itemsep in lists (same for both, for consistency)
+\newlength{\cvparskip}
+\setlength{\cvparskip}{0.5mm plus 0.125mm minus 0.125mm}
+
+% set global list configuration (use parskip as itemsep, and no separation otherwise)
+\setlist{parsep=0mm,topsep=0mm,partopsep=0mm,itemsep=\cvparskip}
+
+
+% CV commands
+% -----------
+
+% creates a "personal info" CV item with the given left and right column contents, with appropriate vertical space after
+% @param #1 left column content (should be the CV photo)
+% @param #2 right column content (should be the name and personal info)
+\newcommand{\cvpersonalinfo}[2]{
+    % left and right column
+    \begin{minipage}[t]{\cvleftcolumnwidth}
+        \vspace{0mm} % XXX hack to align to top, see https://tex.stackexchange.com/a/11632
+        \raggedleft #1
+    \end{minipage}% XXX necessary comment to avoid unwanted space
+    \hspace{\cvcolumngapwidth}% XXX necessary comment to avoid unwanted space
+    \begin{minipage}[t]{\cvrightcolumnwidth}
+        \vspace{0mm} % XXX hack to align to top, see https://tex.stackexchange.com/a/11632
+        #2
+    \end{minipage}
+
+    % space after
+    \vspace{\cvafteritemskipamount}
+}
+
+% typesets a name, with appropriate vertical space after
+% @param #1 name text
+\newcommand{\cvname}[1]{
+    % name
+    \cvnamestyle{#1}
+
+    % space after
+    \vspace{\cvafternameskipamount}
+}
+
+% typesets a line of personal info beginning with an icon, with appropriate vertical space after
+% @param #1 parameters for the \includegraphics command used to include the icon
+% @param #2 icon filename
+% @param #3 line text
+\newcommand{\cvpersonalinfolinewithicon}[3]{
+    % icon, vertically aligned with text (see https://tex.stackexchange.com/a/129463)
+    \raisebox{.5\fontcharht\font`E-.5\height}{\includegraphics[#1]{#2}}
+    % text
+    #3
+
+    % space after
+    \vspace{\cvafterpersonalinfolineskipamount}
+}
+
+% creates a "section" CV item with the given left column content, a horizontal rule in the right column, and with
+% appropriate vertical space after
+% @param #1 left column content (should be the section name)
+\newcommand{\cvsection}[1]{
+    % left and right column
+    \begin{minipage}[t]{\cvleftcolumnwidth}
+        \raggedleft\cvsectionstyle{#1}
+    \end{minipage}% XXX necessary comment to avoid unwanted space
+    \hspace{\cvcolumngapwidth}% XXX necessary comment to avoid unwanted space
+    \begin{minipage}[t]{\cvrightcolumnwidth}
+        \textcolor{cvrulecolor}{\rule{\cvrightcolumnwidth}{0.3mm}}
+    \end{minipage}
+
+    % space after
+    \vspace{\cvaftersectionskipamount}
+}
+
+% creates a standard, multi-purpose CV item with the given left and right column contents, parskip set to cvparskip
+% in the right column, and with appropriate vertical space after
+% @param #1 left column content
+% @param #2 right column content
+\newcommand{\cvitem}[2]{
+    % left and right column
+    \begin{minipage}[t]{\cvleftcolumnwidth}
+        \raggedleft #1
+    \end{minipage}% XXX necessary comment to avoid unwanted space
+    \hspace{\cvcolumngapwidth}% XXX necessary comment to avoid unwanted space
+    \begin{minipage}[t]{\cvrightcolumnwidth}
+        \setlength{\parskip}{\cvparskip} #2
+    \end{minipage}
+
+    % space after
+    \vspace{\cvafteritemskipamount}
+}
+
+% typesets a title, with appropriate vertical space after
+% @param #1 title text
+\newcommand{\cvtitle}[1]{
+    % title
+    \cvtitlestyle{#1}
+
+    % space after
+    \vspace{\cvaftertitleskipamount}
+    % XXX need to subtract cvparskip here, because it is automatically inserted after the title "paragraph"
+    \vspace{-\cvparskip}
+}
+
+
+% header and footer
+% -----------------
+
+% set empty header and footer
+\pagestyle{empty}
+
+
+
+% preamble end/document start
+% ===========================
+
+\begin{document}
+
+
+% personal info
+% -------------
+
+\cvpersonalinfo{
+    % photo
+    \includegraphics[width=.8\linewidth]{cv_icon.png.jpg}
+}{
+    % name
+    \cvname{ZAGORAS ODYSSEAS}
+
+    % address
+    \cvpersonalinfolinewithicon{height=4mm}{072-location.pdf}{
+        Greece, Serres, Tourkofagou 2
+    }
+
+    % phone number
+    \cvpersonalinfolinewithicon{height=4mm}{067-phone.pdf}{
+        +30 6957177112
+    }
+
+    % email address
+    \cvpersonalinfolinewithicon{height=4mm}{070-envelop.pdf}{
+        odyszagoras16@gmail.com    
+    }
+
+    % LinkedIn account
+    \cvpersonalinfolinewithicon{height=4mm}{458-linkedin.pdf}{
+       linkedin.com/in/odys-zagoras-024687192/
+    }
+    \cvpersonalinfolinewithicon{height=4mm}{png2pdf.pdf}{
+        github.com/odyszago
+    }
+
+    % date of birth
+   % Ημερομηνία γέννησης  07 Ιανουαρίου 1996
+}
+
+
+% work experience
+% ---------------
+
+\cvsection{WORKING EXPERIENCE}
+
+% Fake Company 2
+\cvitem{
+    \cvdurationstyle{July 2020 -- January 2021}
+}{
+    \cvtitle{Junior Software Engineer}
+
+    Infoscope, Thessaloniki
+
+    \begin{itemize}[leftmargin=*]
+        \item As part of an internship through the Aristotle University of Thessaloniki, I worked at the company Infoscope. The subject matter was the implementation of a program that manages data coming from IoT (Internet of Things) devices in C/C++ programming language. The WmBus protocol was used for communication between the devices and a microcontroller (beaglebone). The program passed through the cross-compile to the microcontroller and then updated the system server at regular intervals. Also, multi-threading was used in the project.   
+             
+       
+    \end{itemize}
+}
+\cvitem{
+    \cvdurationstyle{November 2021 - Present}
+}{
+
+    \cvtitle{Cloud Engineer}  
+    Deloitte , Thessaloniki
+
+    \begin{itemize}[leftmargin=*]
+        \item Member of the cloud team at Deloiite. I worked in the energy and cosmetics industries creating integrated APIs for clients. I have developed  RESTful APIs in the energy sector and integrated APIs in the cosmetics sector to transfer data from SQl server to CSV files and vice versa. I used python and apache-beam to transfer bank's data from on premises to google cloud  and also for another project to transfer files from NetApp to Azure using microsoft tools and powershell. Build IaC (Infrastructure as Code)  for Deloitte clients.
+    \end{itemize}
+
+
+}
+
+% Fake Company 1
+
+
+
+% education
+% ---------
+
+\cvsection{EDUCATION}
+
+% % master's
+% \cvitem{
+%     \cvdurationstyle{2008 -- 2010}
+% }{
+%     \cvtitle{Master's degree in Advanced Fake Studies}
+
+%     Faculty of Fake Studies, Fake University
+
+%     \begin{itemize}[leftmargin=*]
+%         \item fake degree description (sunt in culpa qui officia deserunt mollit anim id est laborum)
+%         \item fake thesis description (lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+%               incididunt ut labore et dolore magna aliqua)
+%         \item fake details (ut enim ad minim veniam)
+%     \end{itemize}
+% }
+
+% bachelor's
+\cvitem{
+    \cvdurationstyle{2016 -- 2021}
+}{
+    \cvtitle{Bachelor  Informatics (AUTH)}
+
+     School of Sciences, Aristotle University of Thessaloniki.
+
+    \begin{itemize}[leftmargin=*]
+        \item Direction Information systems.
+              
+        \item Thesis:
+        Study and implementation of fused algorithms in embedded systems.
+    \end{itemize}
+
+}
+
+% \cvitem{
+%     \cvdurationstyle{August 2019 }
+% }{
+%     \cvtitle{Training }
+
+%     MegaSoft, Serres
+
+%     \begin{itemize}[leftmargin=*]
+%         \item Training on Web Software technologies.(Node.js)
+        
+%     \end{itemize}
+% }
+
+\cvitem{
+    \cvdurationstyle{ January-Oktober 2021 }
+    
+}{
+   Fulfilled  military obligations.
+
+}
+
+\cvsection{Projects}
+
+\begin{itemize}[leftmargin=150pt]
+        \item Application on Joker data (Statistics, Number Frequencies, etc.) in C. (500 lines of code)
+        
+\end{itemize}
+
+\begin{itemize}[leftmargin=150pt]
+        \item AVL catalog in a group project in C++. (1000 lines of code)
+        
+\end{itemize}
+\begin{itemize}[leftmargin=150pt]
+        \item  Domino with a team in Java using GUI JFrame. (3000 lines of code)
+        
+\end{itemize}
+\begin{itemize}[leftmargin=150pt]
+        \item 	Implementation  CRC Algorithm in Python. 
+        
+\end{itemize}
+\begin{itemize}[leftmargin=150pt]
+        \item Implementation of merge sort algorithms (skyline problem), dynamic programming in Java within the Algorithms course.
+        
+\end{itemize}
+\begin{itemize}[leftmargin=150pt]
+        \item Implementation of Numerical Analysis Algorithms in python. 
+        
+\end{itemize}
+\begin{itemize}[leftmargin=150pt]
+        \item Create a large Stratego game with SinglePlayer and Lan multiplayer capabilities in Java. The program is open source and was implemented from the beginning in 40 days with a team. (5000 lines of code)
+        
+\end{itemize}
+\begin{itemize}[leftmargin=150pt]
+        \item Simple creation of database of a Library in a SQL course.
+        
+\end{itemize}
+\begin{itemize}[leftmargin=150pt]
+        \item Creating B++ tree directories and buffer manager in C ++.
+        
+\end{itemize}
+\begin{itemize}[leftmargin=150pt]
+        \item Creation of prediction models with neural networks in the course Neural Networks.
+        
+\end{itemize}
+\begin{itemize}[leftmargin=150pt]
+        \item Implementation of a search engine in the context of Information Retrieval course.
+        
+\end{itemize}
+\begin{itemize}[leftmargin=150pt]
+        \item 	Finding outliers in data using k-means algorithm in Apache Spark language.
+        
+\end{itemize}
+\begin{itemize}[leftmargin=150pt]
+        \item Creating a program with synchronization for parallel implementation of DFS and MAX CLIQUE algorithm in C/C++ with zeroMq API.
+        
+\end{itemize}
+\begin{itemize}[leftmargin=150pt]
+        \item  The problem of Santa Claus with parallel programming in Java language.
+        
+\end{itemize}
+\begin{itemize}[leftmargin=150pt]
+        \item  Integration Projects developing RestFul APIs using MuleSoft Platform.
+        
+\end{itemize}
+\begin{itemize}[leftmargin=150pt]
+        \item  Python automation scripts for internal use cases for Deloitte.
+        
+\end{itemize}
+\begin{itemize}[leftmargin=150pt]
+        \item  Python apache-beam for Google Cloud migration project.
+        
+\end{itemize}
+\begin{itemize}[leftmargin=150pt]
+        \item  Migration NetApp to Sharepoint Online using Microsft tools and powershell/python scripting.
+        
+\end{itemize}
+\begin{itemize}[leftmargin=150pt]
+        \item  IaC for client porjects using Terraform/Bicep.
+        
+\end{itemize}
+% skills
+% ------
+
+\cvsection{QUALIFICATIONS}
+
+\vspace{\cvbetweensectionandheadingextraskipamount}
+
+% languages
+\cvitem{
+    \cvheadingstyle{Languages}
+}{
+   
+   
+    \begin{itemize}
+        \item  Greek -- Native
+        \item  English -- C2
+        \item  German -- A2
+    \end{itemize}
+
+   
+   
+   
+}
+% certs
+\cvitem{
+    \cvheadingstyle{Certifications}
+}{
+    \begin{itemize}
+        \item  Mulesoft Developer level 1
+        \item  Google Cloud Digital Leader
+        \item Google Cloud Associate Engineer
+        \item Microsoft Azure AI-900 
+        \item Microsoft Azure DP-900
+    \end{itemize}
+    
+}
+%  skills
+\cvitem{
+    \cvheadingstyle{Programming languages}
+}{
+   
+    \begin{itemize}
+        \item C/C++
+        \item Python
+        \item Java
+        \item Datawave
+        \item Javascript
+        
+    \end{itemize}
+
+}
+\cvitem{
+    \cvheadingstyle{Other }
+}{
+    \begin{itemize}
+        \item Linux and basic Bash scripting knowledge.
+        \item Web Development.
+        \item Knowledge git version control.
+        \item Microsoft Office.
+        \item Network Knowledge TCP / HTTP protocols.
+        \item RESTful APIs 
+        \item basic IaC using Terraform/Bicep.
+    \end{itemize}
+}
+% completely fake skills
+\cvitem{
+    \cvheadingstyle{Seminars}
+}{
+   
+    \begin{itemize}
+       \item Participation in the ACM team of AUTh for 3 months in 2018.
+        \item Data Analytics for IoT Seminar (ISSEL) from AUTh.
+        \item Soft Skills Academy Thessaloniki Seminar
+2-3 November 2019 on Stress Management and Time Management.
+
+        \item New Era of Technology Innovation in ICT, 5G and Optical Technologies (FITCE) December 2018.
+        \item SimUnesCO 2017 in Corfu on Natural Science.
+
+    \end{itemize}
+  
+}
+
+% additional info
+% ---------------
+
+\cvsection{Activities-Interests}
+\begin {itemize} [leftmargin = 150pt]
+    \item Participate in  Aviation events voluntarily.
+\end {itemize}
+
+\begin {itemize} [leftmargin = 150pt]
+    \item Cycling, basketball and sports.
+\end {itemize}
+\begin {itemize} [leftmargin = 150pt]
+    \item Reading adventure books.
+\end {itemize}
+\begin {itemize} [leftmargin = 150pt]
+    \item Active member of cultural associations in Serres and Thessaloniki in the Vlach associations of Serres Georgakis Olympios and Vlach Students of Thessaloniki.
+\end {itemize}
+\begin {itemize} [leftmargin = 150pt]
+    \item Travel lover both in Greece and abroad.
+\end {itemize}
+
+\end{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%END ENGLISH
+
+
+
+
+%START GREEK
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % vim: set textwidth=120:
+
+% % Example CV based on the 1.5-column-cv template. Main features:
+% % * uses the Roboto font family and IcoMoon icon set;
+% % * doesn't use colours, different font weights are used instead for styling;
+% % * because the CV fits on one page, header and footer is empty, since there isn't much useful info to put there;
+% % * includes a photo.
+% \documentclass[a4paper,10pt]{article}
+
+
+% % package imports
+% % ---------------
+
+% \usepackage[british]{babel} % for correct language and hyphenation and stuff
+% \usepackage{calc}           % for easier length calculations (infix notation)
+% \usepackage{enumitem}       % for configuring list environments
+% \usepackage{fancyhdr}       % for setting header and footer
+% \usepackage{fontspec}       % for fonts
+% \usepackage{geometry}       % for setting margins (\newgeometry)
+% \usepackage{graphicx}       % for pictures
+% \usepackage{microtype}      % for microtypography stuff
+% \usepackage{xcolor}         % for colours
+
+
+% % margin and column widths
+% % ------------------------
+
+% % margins
+% \newgeometry{left=15mm,right=15mm,top=15mm,bottom=15mm}
+
+% % width of the gap between left and right column
+% \newlength{\cvcolumngapwidth}
+% \setlength{\cvcolumngapwidth}{3.5mm}
+
+% % left column width
+% \newlength{\cvleftcolumnwidth}
+% \setlength{\cvleftcolumnwidth}{44.5mm}
+
+% % right column width
+% \newlength{\cvrightcolumnwidth}
+% \setlength{\cvrightcolumnwidth}{\textwidth-\cvleftcolumnwidth-\cvcolumngapwidth}
+
+% % set paragraph indentation to 0, because it screws up the whole layout otherwise
+% \setlength{\parindent}{0mm}
+
+
+% % style definitions
+% % -----------------
+% % style categories explanation:
+% % * \cvnameXXX is used for the name;
+% % * \cvsectionXXX is used for section names (left column, accompanied by a horizontal rule);
+% % * \cvtitleXXX is used for job/education titles (right column);
+% % * \cvdurationXXX is used for job/education durations (left column);
+% % * \cvheadingXXX is used for headings (left column);
+% % * \cvmainXXX (and \setmainfont) is used for main text;
+% % * \cvruleXXX is used for the horizontal rules denoting sections.
+
+% % font families
+% \defaultfontfeatures{Ligatures=TeX} % reportedly a good idea, see https://tex.stackexchange.com/a/37251
+
+% \newfontfamily{\cvnamefont}{Roboto Medium}
+% \newfontfamily{\cvsectionfont}{Roboto Medium}
+% \newfontfamily{\cvtitlefont}{Roboto Regular}
+% \newfontfamily{\cvdurationfont}{Roboto Light Italic}
+% \newfontfamily{\cvheadingfont}{Roboto Regular}
+% \setmainfont{Roboto Light}
+
+% % colours
+% \definecolor{cvnamecolor}{HTML}{009FD6}
+% \definecolor{cvsectioncolor}{HTML}{009FD6}
+% \definecolor{cvtitlecolor}{HTML}{009FD6}
+% \definecolor{cvdurationcolor}{HTML}{009FD6}
+% \definecolor{cvheadingcolor}{HTML}{009FD6}
+% \definecolor{cvmaincolor}{HTML}{009FD6}
+% \definecolor{cvrulecolor}{HTML}{009FD6}
+
+% \color{cvmaincolor}
+
+% % styles
+% \newcommand{\cvnamestyle}[1]{{\Large\cvnamefont\textcolor{cvnamecolor}{#1}}}
+% \newcommand{\cvsectionstyle}[1]{{\normalsize\cvsectionfont\textcolor{cvsectioncolor}{#1}}}
+% \newcommand{\cvtitlestyle}[1]{{\large\cvtitlefont\textcolor{cvtitlecolor}{#1}}}
+% \newcommand{\cvdurationstyle}[1]{{\small\cvdurationfont\textcolor{cvdurationcolor}{#1}}}
+% \newcommand{\cvheadingstyle}[1]{{\normalsize\cvheadingfont\textcolor{cvheadingcolor}{#1}}}
+
+
+% % inter-item spacing
+% % ------------------
+
+% % vertical space after personal info and standard CV items
+% \newlength{\cvafteritemskipamount}
+% \setlength{\cvafteritemskipamount}{5mm plus 1.25mm minus 1.25mm}
+
+% % vertical space after sections
+% \newlength{\cvaftersectionskipamount}
+% \setlength{\cvaftersectionskipamount}{2mm plus 0.5mm minus 0.5mm}
+
+% % extra vertical space to be used when a section starts with an item with a heading (e.g. in the skills section),
+% % so that the heading does not follow the section name too closely
+% \newlength{\cvbetweensectionandheadingextraskipamount}
+% \setlength{\cvbetweensectionandheadingextraskipamount}{1mm plus 0.25mm minus 0.25mm}
+
+
+% % intra-item spacing
+% % ------------------
+
+% % vertical space after name
+% \newlength{\cvafternameskipamount}
+% \setlength{\cvafternameskipamount}{3mm plus 0.75mm minus 0.75mm}
+
+% % vertical space after personal info lines
+% \newlength{\cvafterpersonalinfolineskipamount}
+% \setlength{\cvafterpersonalinfolineskipamount}{2mm plus 0.5mm minus 0.5mm}
+
+% % vertical space after titles
+% \newlength{\cvaftertitleskipamount}
+% \setlength{\cvaftertitleskipamount}{1mm plus 0.25mm minus 0.25mm}
+
+% % value to be used as parskip in right column of CV items and itemsep in lists (same for both, for consistency)
+% \newlength{\cvparskip}
+% \setlength{\cvparskip}{0.5mm plus 0.125mm minus 0.125mm}
+
+% % set global list configuration (use parskip as itemsep, and no separation otherwise)
+% \setlist{parsep=0mm,topsep=0mm,partopsep=0mm,itemsep=\cvparskip}
+
+
+% % CV commands
+% % -----------
+
+% % creates a "personal info" CV item with the given left and right column contents, with appropriate vertical space after
+% % @param #1 left column content (should be the CV photo)
+% % @param #2 right column content (should be the name and personal info)
+% \newcommand{\cvpersonalinfo}[2]{
+%     % left and right column
+%     \begin{minipage}[t]{\cvleftcolumnwidth}
+%         \vspace{0mm} % XXX hack to align to top, see https://tex.stackexchange.com/a/11632
+%         \raggedleft #1
+%     \end{minipage}% XXX necessary comment to avoid unwanted space
+%     \hspace{\cvcolumngapwidth}% XXX necessary comment to avoid unwanted space
+%     \begin{minipage}[t]{\cvrightcolumnwidth}
+%         \vspace{0mm} % XXX hack to align to top, see https://tex.stackexchange.com/a/11632
+%         #2
+%     \end{minipage}
+
+%     % space after
+%     \vspace{\cvafteritemskipamount}
+% }
+
+% % typesets a name, with appropriate vertical space after
+% % @param #1 name text
+% \newcommand{\cvname}[1]{
+%     % name
+%     \cvnamestyle{#1}
+
+%     % space after
+%     \vspace{\cvafternameskipamount}
+% }
+
+% % typesets a line of personal info beginning with an icon, with appropriate vertical space after
+% % @param #1 parameters for the \includegraphics command used to include the icon
+% % @param #2 icon filename
+% % @param #3 line text
+% \newcommand{\cvpersonalinfolinewithicon}[3]{
+%     % icon, vertically aligned with text (see https://tex.stackexchange.com/a/129463)
+%     \raisebox{.5\fontcharht\font`E-.5\height}{\includegraphics[#1]{#2}}
+%     % text
+%     #3
+
+%     % space after
+%     \vspace{\cvafterpersonalinfolineskipamount}
+% }
+
+% % creates a "section" CV item with the given left column content, a horizontal rule in the right column, and with
+% % appropriate vertical space after
+% % @param #1 left column content (should be the section name)
+% \newcommand{\cvsection}[1]{
+%     % left and right column
+%     \begin{minipage}[t]{\cvleftcolumnwidth}
+%         \raggedleft\cvsectionstyle{#1}
+%     \end{minipage}% XXX necessary comment to avoid unwanted space
+%     \hspace{\cvcolumngapwidth}% XXX necessary comment to avoid unwanted space
+%     \begin{minipage}[t]{\cvrightcolumnwidth}
+%         \textcolor{cvrulecolor}{\rule{\cvrightcolumnwidth}{0.3mm}}
+%     \end{minipage}
+
+%     % space after
+%     \vspace{\cvaftersectionskipamount}
+% }
+
+% % creates a standard, multi-purpose CV item with the given left and right column contents, parskip set to cvparskip
+% % in the right column, and with appropriate vertical space after
+% % @param #1 left column content
+% % @param #2 right column content
+% \newcommand{\cvitem}[2]{
+%     % left and right column
+%     \begin{minipage}[t]{\cvleftcolumnwidth}
+%         \raggedleft #1
+%     \end{minipage}% XXX necessary comment to avoid unwanted space
+%     \hspace{\cvcolumngapwidth}% XXX necessary comment to avoid unwanted space
+%     \begin{minipage}[t]{\cvrightcolumnwidth}
+%         \setlength{\parskip}{\cvparskip} #2
+%     \end{minipage}
+
+%     % space after
+%     \vspace{\cvafteritemskipamount}
+% }
+
+% % typesets a title, with appropriate vertical space after
+% % @param #1 title text
+% \newcommand{\cvtitle}[1]{
+%     % title
+%     \cvtitlestyle{#1}
+
+%     % space after
+%     \vspace{\cvaftertitleskipamount}
+%     % XXX need to subtract cvparskip here, because it is automatically inserted after the title "paragraph"
+%     \vspace{-\cvparskip}
+% }
+
+
+% % header and footer
+% % -----------------
+
+% % set empty header and footer
+% \pagestyle{empty}
+
+
+
+% % preamble end/document start
+% % ===========================
+
+% \begin{document}
+
+
+% % personal info
+% % -------------
+
+% \cvpersonalinfo{
+%     % photo
+%     \includegraphics[height=36mm]{cv_icon.png.jpg}
+% }{
+%     % name
+%     \cvname{ΖΑΓΟΡΑΣ ΟΔΥΣΣΕΑΣ}
+
+%     % address
+%     \cvpersonalinfolinewithicon{height=4mm}{072-location.pdf}{
+%         Θεσσαλονίκη, Πηλίου 4
+%     }
+
+%     % phone number
+%     \cvpersonalinfolinewithicon{height=4mm}{067-phone.pdf}{
+%         +30 6957177112
+%     }
+
+%     % email address
+%     \cvpersonalinfolinewithicon{height=4mm}{070-envelop.pdf}{
+%         odyszagoras16@gmail.com    
+%     }
+
+%     % LinkedIn account
+%     \cvpersonalinfolinewithicon{height=4mm}{458-linkedin.pdf}{
+%       linkedin.com/in/odys-zagoras-024687192/
+%     }
+%     \cvpersonalinfolinewithicon{height=4mm}{png2pdf.pdf}{
+%         github.com/odyszago
+%     }
+
+%     % date of birth
+%   % Ημερομηνία γέννησης  07 Ιανουαρίου 1996
+% }
+
+
+% % work experience
+% % ---------------
+
+% \cvsection{ΕΡΓΑΣΙΑΚΗ ΕΜΠΕΙΡΙΑ}
+
+% % Fake Company 2
+% \cvitem{
+%     \cvdurationstyle{Ιούλιος 2020 -- Ιανουάριος 2021}
+% }{
+%     \cvtitle{Junior Software Engineer C/C++}
+
+%     Infoscope, Θεσσαλονίκη
+
+%     \begin{itemize}[leftmargin=*]
+%         \item Στα πλαίσια πρακτικής Άσκησης μέσω του ΑΠΘ, εργάστηκα στην εταιρεία Infoscope. Το αντικείμενο με το οποίο ασχολήθηκα  ήταν η υλοποίηση ενός προγράμματος  που διαχειρίζεται δεδομένα που έρχονται από συσκευές IoT(Internet of Things) σε γλώσσα προγραμματισμού C/C++. Χρησιμοποιήθηκε το πρωτόκολλο WmBus για την επικοινωνία μεταξύ των συσκευών και ενός μικροελεγκτή (beaglebone).Το πρόγραμμα μέσω cross-compile περνούσε στον μικροελεγκτή και στη συνέχεια ενημέρωνε τον server του συστήματος ανά τακτά χρονικά διαστήματα.
+             
+       
+%     \end{itemize}
+% }
+
+% % Fake Company 1
+
+
+
+% % education
+% % ---------
+
+% \cvsection{ΕΚΠΑΙΔΕΥΣΗ}
+
+% % % master's
+% % \cvitem{
+% %     \cvdurationstyle{2008 -- 2010}
+% % }{
+% %     \cvtitle{Master's degree in Advanced Fake Studies}
+
+% %     Faculty of Fake Studies, Fake University
+
+% %     \begin{itemize}[leftmargin=*]
+% %         \item fake degree description (sunt in culpa qui officia deserunt mollit anim id est laborum)
+% %         \item fake thesis description (lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+% %               incididunt ut labore et dolore magna aliqua)
+% %         \item fake details (ut enim ad minim veniam)
+% %     \end{itemize}
+% % }
+
+% % bachelor's
+% \cvitem{
+%     \cvdurationstyle{2016 -- 2021}
+% }{
+%     \cvtitle{Πτυχίο Πληροφορικής (ΑΠΘ)}
+
+%     Σχολή Θετικών Επιστημών, Αριστοτέλειο Πανεπιστήμιο Θεσσαλονίκης.
+
+%     \begin{itemize}[leftmargin=*]
+%         \item Κατεύθυνση Πληροφοριακά συστήματα.
+              
+%         \item Θέμα Πτυχιακής:
+%          Μελέτη και υλοποίηση αλγορίθμων συγχώνευσης σε ενσωματωμένα συστήματα. Εκτιμώμενη περίοδος παράδοσης της εργασίας Ιανουάριους 2022.
+%     \end{itemize}
+
+% }
+
+% \cvitem{
+%     \cvdurationstyle{Αύγουστος 2019 }
+% }{
+%     \cvtitle{Training }
+
+%     ΜέγαSoft, Σέρρες
+
+%     \begin{itemize}[leftmargin=*]
+%         \item Εκπαίδευση πάνω σε τεχνολογίες Λογισμικού Web με την παρακολούθηση δια ζώσης σεμιναρίων.
+        
+%     \end{itemize}
+% }
+
+% \cvitem{
+%     \cvdurationstyle{ Ιανουάριος-Οκτώβριος 2021 }
+    
+% }{
+%     Εκπλήρωση στρατιωτικών υποχρεώσεων.
+
+% }
+
+% \cvsection{Projects}
+
+% \begin{itemize}[leftmargin=150pt]
+%         \item Εφαρμογή πάνω στα δεδομένα Joker (Στατιστικά Στοιχεία, Συχνότητες  εμφάνισης αριθμών κλπ) σε C.(500 γραμμές κώδικα)
+        
+% \end{itemize}
+
+% \begin{itemize}[leftmargin=150pt]
+%         \item Καταλόγος AVL σε ομαδικό project σε C++.(1000 γραμμές κώδικα)
+        
+% \end{itemize}
+% \begin{itemize}[leftmargin=150pt]
+%         \item Πρόγραμμα Domino με ομάδα σε Java με γραφική διεπαφή. (3000 γραμμές κώδικα)
+        
+% \end{itemize}
+% \begin{itemize}[leftmargin=150pt]
+%         \item 	Υλοποίηση Αλγορίθμου CRC σε Python. 
+        
+% \end{itemize}
+% \begin{itemize}[leftmargin=150pt]
+%         \item Υλοποίηση αλγορίθμων merge sort (skyline problem) , dynamic programming  σε Java στα πλαίσια μαθήματος  Αλγορίθμων.
+        
+% \end{itemize}
+% \begin{itemize}[leftmargin=150pt]
+%         \item Υλοποίηση Αλγορίθμων Αριθμητικής Ανάλυσης σε python. 
+        
+% \end{itemize}
+% \begin{itemize}[leftmargin=150pt]
+%         \item Δημιουργία μεγάλου παιχνιδιού Stratego  με δυνατότητες SinglePlayer και Lan multiplayer  σε Java . Το πρόγραμμα είναι open source και υλοποίηση του έγινε από την αρχή σε διάστημα 40 ημερών.(5000 γραμμές κώδικα)
+        
+% \end{itemize}
+% \begin{itemize}[leftmargin=150pt]
+%         \item Απλή δημιουργία βάσεις δεδομένων μίας Βιβλιοθήκης στα πλαίσια μαθήματος σε SQL.
+        
+% \end{itemize}
+% \begin{itemize}[leftmargin=150pt]
+%         \item Δημιουργία καταλόγων B++ tree και buffer manager σε C++ .
+        
+% \end{itemize}
+% \begin{itemize}[leftmargin=150pt]
+%         \item Δημιουργία μοντέλων πρόβλεψης με νευρωνικά δίκτυα στα πλαίσια μαθήματος Νευρωνικών δικτύων.
+        
+% \end{itemize}
+% \begin{itemize}[leftmargin=150pt]
+%         \item Υλοποίηση μηχανής αναζήτησης στα πλαίσια μαθήματος Ανάκτησης Πληροφορίας.
+        
+% \end{itemize}
+% \begin{itemize}[leftmargin=150pt]
+%         \item 	Εύρεση outliers σε δεδομένα με χρήση k-means αλγορίθμου σε γλώσσα Apache Spark.
+        
+% \end{itemize}
+% \begin{itemize}[leftmargin=150pt]
+%         \item 	Δημιουργία προγράμματος με ταυτοχρονισμό για παράλληλη υλοποίηση αλγορίθμου DFS και MAX CLIQUE  σε C/C++ με zeroMq API.
+        
+% \end{itemize}
+% \begin{itemize}[leftmargin=150pt]
+%         \item  Το πρόβλημα του Άι Βασίλη με  παράλληλο προγραμματισμό σε γλώσσα Java.
+        
+% \end{itemize}
+
+
+
+% % skills
+% % ------
+
+% \cvsection{ΠΡΟΣΟΝΤΑ}
+
+% \vspace{\cvbetweensectionandheadingextraskipamount}
+
+% % languages
+% \cvitem{
+%     \cvheadingstyle{Γλώσσες}
+% }{
+%     Αγγλικά -- C2(Proficiency)
+%     \begin{itemize}
+%         \item  ECPE Michigan 
+%     \end{itemize}
+
+%     Γερμανικά -- A2(Elementary)
+   
+   
+% }
+% % fake skills
+% \cvitem{
+%     \cvheadingstyle{Γλώσσες Προγραμματισμού}
+% }{
+   
+%     \begin{itemize}
+%         \item C/C++
+%         \item Python
+%         \item Java
+%         \item Javascript
+        
+%     \end{itemize}
+
+% }
+% \cvitem{
+%     \cvheadingstyle{Διάφορα }
+% }{
+%     \begin{itemize}
+%         \item Linux και βασικές  γνώσεις   Bash scripting.
+%         \item Web Development.
+%         \item Γνώση git version control.
+%         \item Microsoft Office.
+%         \item Γνώσεις Δικτύων TCP/HTTP protocols.
+%     \end{itemize}
+% }
+% % completely fake skills
+% \cvitem{
+%     \cvheadingstyle{Σεμινάρια}
+% }{
+   
+%     \begin{itemize}
+%         \item Συμμετοχή σε ομάδα ACM του ΑΠΘ για 3 μήνες το 2018.
+%         \item 	Σεμινάριο Data Analytics for IoT (ISSEL) από το ΑΠΘ.
+%         \item 	Σεμινάριο Soft Skills Academy Thessaloniki 
+% 2-3 Νοεμβρίου 2019 σε θέματα Stress Management και Time Management.
+%         \item 	Εισαγωγή στον Προγραμματισμό  σε Python 2017 Coursity.
+%         \item 	Προχωρημένος Προγραμματισμός σε Python 2018 Mathesis.
+%         \item 	New Era of Technology Innovation in ICT, 5G and Optical Technologies (FITCE) Δεκέμβριος 2018.
+%         \item 	SimUnesCO 2017 στην Κέρκυρα με θέμα Natural Science.
+
+%     \end{itemize}
+
+  
+% }
+
+
+% % additional info
+% % ---------------
+
+% \cvsection{Δραστηριότητες-Ενδιαφέροντα}
+% \begin{itemize}[leftmargin=150pt]
+%     \item 	Δημιουργία απλών προγραμμάτων σε ελεύθερο χρόνο.
+% \end{itemize}
+% \begin{itemize}[leftmargin=150pt]
+%     \item Συμμετοχή σε event Αεροπλοΐας εθελοντικά όποτε είναι αυτό δυνατό .
+% \end{itemize}
+% \begin{itemize}[leftmargin=150pt]
+%     \item 	Ενασχόληση με ποδηλασία ,μπάσκετ και αθλητισμό. 
+% \end{itemize}
+% \begin{itemize}[leftmargin=150pt]
+%     \item 	Διάβασμα βιβλίων περιπέτειας . 
+% \end{itemize}
+% \begin{itemize}[leftmargin=150pt]
+%     \item 	Ενεργό μέλος πολιτιστικών συλλόγων σε Σέρρες και Θεσσαλονίκη στους συλλόγους Βλάχων Σερρών Γεωργάκης Ολύμπιος και Βλάχους Φοιτητές Θεσσαλονίκης.
+% \end{itemize}
+% \begin{itemize}[leftmargin=150pt]
+%     \item 	Λάτρης ταξιδιών τόσο στο εσωτερικό όσο και στο εξωτερικό.
+% \end{itemize}
+
+% \end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%END GREEK
